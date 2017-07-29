@@ -43,9 +43,9 @@ void InnerProductLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
         this->layer_param_.inner_product_param().weight_filler()));
     weight_filler->Fill(this->blobs_[0].get());
 
-    masks_[0].reset(new Blob<Dtype>(weight_shape)); 
+    this->masks_[0].reset(new Blob<Dtype>(weight_shape)); 
     caffe_set<Dtype>(this->blobs_[0]->count(), (Dtype)1., 
-                    masks_[0]->mutable_cpu_data()); 
+                    this->masks_[0]->mutable_cpu_data()); 
 
     // If necessary, intiialize and fill the bias term
     if (bias_term_) {
@@ -54,9 +54,9 @@ void InnerProductLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
       shared_ptr<Filler<Dtype> > bias_filler(GetFiller<Dtype>(
           this->layer_param_.inner_product_param().bias_filler()));
       bias_filler->Fill(this->blobs_[1].get());
-      masks_[1].reset(new Blob<Dtype>(bias_shape)); 
+      this->masks_[1].reset(new Blob<Dtype>(bias_shape)); 
       caffe_set<Dtype>(this->blobs_[1]->count(), (Dtype)1., 
-        masks_[1]->mutable_cpu_data()); 
+        this->masks_[1]->mutable_cpu_data()); 
     }
   }  // parameter initialization
   this->param_propagate_down_.resize(this->blobs_.size(), true);
@@ -149,11 +149,11 @@ void InnerProductLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
   // mask
   if (this->param_propagate_down_[0]) { 
     caffe_mul(this->blobs_[0]->count(), this->blobs_[0]->cpu_diff(), 
-      masks_[0]->cpu_data(), this->blobs_[0]->mutable_cpu_diff()); 
+      this->masks_[0]->cpu_data(), this->blobs_[0]->mutable_cpu_diff()); 
   }
   if (bias_term_ && this->param_propagate_down_[1]) { 
     caffe_mul(this->blobs_[1]->count(), this->blobs_[1]->cpu_diff(), 
-      masks_[1]->cpu_data(), this->blobs_[1]->mutable_cpu_diff()); 
+      mthis->asks_[1]->cpu_data(), this->blobs_[1]->mutable_cpu_diff()); 
   }
 }
 

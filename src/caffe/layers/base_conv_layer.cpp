@@ -166,7 +166,7 @@ void BaseConvolutionLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
     this->blobs_[0].reset(new Blob<Dtype>(weight_shape));
     this->masks_[0].reset(new Blob<Dtype>(weight_shape)); 
     caffe_set<Dtype>(this->blobs_[0]->count(), (Dtype)1., 
-                    masks_[0]->mutable_cpu_data()); 
+                    this->masks_[0]->mutable_cpu_data()); 
 
     shared_ptr<Filler<Dtype> > weight_filler(GetFiller<Dtype>(
         this->layer_param_.convolution_param().weight_filler()));
@@ -174,9 +174,9 @@ void BaseConvolutionLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
     // If necessary, initialize and fill the biases.
     if (bias_term_) {
       this->blobs_[1].reset(new Blob<Dtype>(bias_shape));
-      masks_[1].reset(new Blob<Dtype>(bias_shape)); 
+      this->masks_[1].reset(new Blob<Dtype>(bias_shape)); 
       caffe_set<Dtype>(this->blobs_[1]->count(), (Dtype)1., 
-        masks_[1]->mutable_cpu_data()); 
+        this->masks_[1]->mutable_cpu_data()); 
       shared_ptr<Filler<Dtype> > bias_filler(GetFiller<Dtype>(
           this->layer_param_.convolution_param().bias_filler()));
       bias_filler->Fill(this->blobs_[1].get());
