@@ -40,6 +40,55 @@ Net<Dtype>::Net(const string& param_file, Phase phase,
   Init(param);
 }
 
+// ----------------------------  MASK ----------------------------------
+template <typename Dtype>
+void Net<Dtype>::MakeMask(fstream &file0, fstream &file1, Dtype coeff){
+  Dtype var0, var1, loss0, loss1;
+  for(int i=0; i != layers_.size(); ++i){
+    if (layer_need_backward_[i] && (layers_[i]->blobs()).size()==2) {
+      Blob<Dtype> *weight_blob = (layers_[i]->blobs())[0];
+      Dtype *weight = weight_blob->mutable_cpu_data();
+      Blob<Dtype> *bias_blob = (layers_[i]->blobs())[1];
+      Dtype *bias = bias_blob->mutable_cpu_data();
+      std::vector<std::pair<Dtype, std::pair<int, int> > indexed_x;
+      for(int j=0; j != weight->count(); ++j){
+        file0 >> var0;
+        file1 >> var1;
+        loss0=std::abs(weight[j]-weight[j]*var0);
+        loss1=std::abs(weight[j]-weight[j]*var1);
+        if(loss0<loss1){
+          indexed_x.push_back(std::make_pair(loss0, std::make_pair(0,j));
+        }
+        else{
+          indexed_x.push_back(std::make_pair(loss1, std::make_pair(0,j));
+        }
+      }
+      for(int j=0; j != bias->count(); ++j){
+        file0 >> var0;
+        file1 >> var1;
+        loss0=std::abs(bias[j]-bias[j]*var0);
+        loss1=std::abs(bias[j]-bias[j]*var1);
+        if(loss0<loss1){
+          indexed_x.push_back(std::make_pair(loss0, std::make_pair(1,j));
+        }
+        else{
+          indexed_x.push_back(std::make_pair(loss1, std::make_pair(1,j));
+        }
+      }
+      int size_masked = std::floor(coeff*(weight_blob->count()+bias_blob->count()));
+        std::partial_sort(
+          indexed_x.begin(), indexed_x.begin() + size_masked),
+          indexed_x.end(), std::greater<std::pair<Dtype, std::pair<int,int> > >());
+      vector<shared_ptr<Blob<Dtype> > > my_masks = layer_[i]->masks();
+      for (int k = 0; k < size_masked; ++k) {
+        my_masks[indexed_x[k].second.first][indexed_x[k].second.second] = 0; 
+      }
+    }
+  }
+}
+// ----------------------------  END ----------------------------------
+
+
 template <typename Dtype>
 void Net<Dtype>::Init(const NetParameter& in_param) {
   // Set phase from the state.

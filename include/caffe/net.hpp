@@ -31,6 +31,9 @@ class Net {
   /// @brief Initialize a network with a NetParameter.
   void Init(const NetParameter& param);
 
+  // Make mask from two variation files.
+  void MakeMask(fstream &file0, fstream &file1, Dtype coeff);
+
   /**
    * @brief Run Forward and return the result.
    *

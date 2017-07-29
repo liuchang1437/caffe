@@ -184,8 +184,19 @@ void Solver<Dtype>::Step(int iters) {
   losses_.clear();
   smoothed_loss_ = 0;
   iteration_timer_.Start();
-
+  int mask_freq = 1000;
+  Dtype mask_coeff = 0.001;
   while (iter_ < stop_iter) {
+    // calculate mask every mask_freq times.
+    if(!(iter_ % mask_freq)){
+      fstream file0("vgg_fault16/0.txt",ios::in);
+      fstream file1("vgg_fault16/1.txt",ios::in);
+      net_->MakeMask(&file0, &file1, mask_coeff);
+      file0.close();
+      file1.close();
+    }
+    // -------------- end mask -----------------
+
     // zero-init the params
     net_->ClearParamDiffs();
     if (param_.test_interval() && iter_ % param_.test_interval() == 0

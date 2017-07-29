@@ -47,6 +47,7 @@ class Layer {
           blobs_[i].reset(new Blob<Dtype>());
           blobs_[i]->FromProto(layer_param_.blobs(i));
         }
+        masks_.resize(layer_param_.blobs_size()); 
       }
     }
   virtual ~Layer() {}
@@ -157,6 +158,11 @@ class Layer {
   vector<shared_ptr<Blob<Dtype> > >& blobs() {
     return blobs_;
   }
+
+  vector<shared_ptr<Blob<Dtype> > >& masks() {
+    return masks_;
+  }
+
 
   /**
    * @brief Returns the layer parameter.
@@ -299,6 +305,7 @@ class Layer {
   Phase phase_;
   /** The vector that stores the learnable parameters as a set of blobs. */
   vector<shared_ptr<Blob<Dtype> > > blobs_;
+  vector<shared_ptr<Blob<Dtype> > > masks_; 
   /** Vector indicating whether to compute the diff of each param blob. */
   vector<bool> param_propagate_down_;
 
