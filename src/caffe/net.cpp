@@ -48,7 +48,7 @@ void Net<Dtype>::MakeMask(fstream &file0, fstream &file1, Dtype coeff){
     if (layer_need_backward_[i] && (layers_[i]->blobs()).size()==2) {
       boost::shared_ptr<Blob<Dtype> > weight_blob = (layers_[i]->blobs())[0];
       Dtype *weight = weight_blob->mutable_cpu_data();
-      boost::shared_ptr<Blob<Dtype> > *bias_blob = (layers_[i]->blobs())[1];
+      boost::shared_ptr<Blob<Dtype> > bias_blob = (layers_[i]->blobs())[1];
       Dtype *bias = bias_blob->mutable_cpu_data();
       std::vector<std::pair<Dtype, std::pair<int, int> > > indexed_x;
       for(int j=0; j != weight_blob->count(); ++j){
