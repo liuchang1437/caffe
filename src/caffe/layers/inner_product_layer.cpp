@@ -153,7 +153,7 @@ void InnerProductLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
   }
   if (bias_term_ && this->param_propagate_down_[1]) { 
     caffe_mul(this->blobs_[1]->count(), this->blobs_[1]->cpu_diff(), 
-      mthis->asks_[1]->cpu_data(), this->blobs_[1]->mutable_cpu_diff()); 
+      this->masks_[1]->cpu_data(), this->blobs_[1]->mutable_cpu_diff()); 
   }
 }
 

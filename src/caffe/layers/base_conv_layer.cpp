@@ -164,6 +164,7 @@ void BaseConvolutionLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
     // Initialize and fill the weights:
     // output channels x input channels per-group x kernel height x kernel width
     this->blobs_[0].reset(new Blob<Dtype>(weight_shape));
+    LOG(INFO) << "here~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~";
     this->masks_[0].reset(new Blob<Dtype>(weight_shape)); 
     caffe_set<Dtype>(this->blobs_[0]->count(), (Dtype)1., 
                     this->masks_[0]->mutable_cpu_data()); 

@@ -191,7 +191,7 @@ void Solver<Dtype>::Step(int iters) {
     if(!(iter_ % mask_freq)){
       fstream file0("vgg_fault16/0.txt",ios::in);
       fstream file1("vgg_fault16/1.txt",ios::in);
-      net_->MakeMask(&file0, &file1, mask_coeff);
+      net_->MakeMask(file0, file1, mask_coeff);
       file0.close();
       file1.close();
     }

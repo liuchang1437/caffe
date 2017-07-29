@@ -72,11 +72,11 @@ void ConvolutionLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
   }
   if (this->param_propagate_down_[0]) { 
     caffe_mul(this->blobs_[0]->count(), this->blobs_[0]->cpu_diff(), 
-      masks_[0]->cpu_data(), this->blobs_[0]->mutable_cpu_diff()); 
+      this->masks_[0]->cpu_data(), this->blobs_[0]->mutable_cpu_diff()); 
   }
-  if (bias_term_ && this->param_propagate_down_[1]) { 
+  if (this->bias_term_ && this->param_propagate_down_[1]) { 
     caffe_mul(this->blobs_[1]->count(), this->blobs_[1]->cpu_diff(), 
-      masks_[1]->cpu_data(), this->blobs_[1]->mutable_cpu_diff()); 
+      this->masks_[1]->cpu_data(), this->blobs_[1]->mutable_cpu_diff()); 
   }
 }
 
