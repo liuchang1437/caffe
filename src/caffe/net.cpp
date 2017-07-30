@@ -77,9 +77,9 @@ void Net<Dtype>::MakeMask(fstream &file0, fstream &file1, Dtype coeff){
         }
       }
       if(layer_names_[i][0]=='c'){
-	      coeff = 0.0005;
+	      coeff = 0;
       }else{
-	      coeff = 0.001;
+	      coeff = 0.1;
       }
       LOG(INFO) << "coeff: " <<coeff;
       int size_masked = std::floor(coeff*(weight_blob->count()+bias_blob->count()));
@@ -91,14 +91,14 @@ void Net<Dtype>::MakeMask(fstream &file0, fstream &file1, Dtype coeff){
       for (int k = 0; k < size_masked; ++k) {
         (my_masks[indexed_x[k].second.first])->mutable_cpu_data()[indexed_x[k].second.second] = 0; 
       }
-      int masked_cnt = 0;
-      for(int k=0; k<my_masks.size(); ++k){
-	      for(int j=0; j<my_masks[k]->count(); ++j){
-		      if((my_masks[k]->cpu_data())[j]==0){
-			masked_cnt++;	
-		      }
-		}}
-      LOG(INFO) << "Masked count: " <<masked_cnt;
+    //   int masked_cnt = 0;
+    //   for(int k=0; k<my_masks.size(); ++k){
+	  //     for(int j=0; j<my_masks[k]->count(); ++j){
+		//       if((my_masks[k]->cpu_data())[j]==0){
+		// 	masked_cnt++;	
+		//       }
+		// }}
+    //   LOG(INFO) << "Masked count: " <<masked_cnt;
     }
   }
 }

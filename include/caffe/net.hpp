@@ -89,6 +89,27 @@ class Net {
     Dtype loss;
     Forward(&loss);
     Backward();
+    // int zero_cnt;
+    // LOG(INFO) << "===========================" ;
+    // LOG(INFO) << layers_.size() ;
+    // for(int k=0; k!=layers_.size(); ++k){
+    //   LOG(INFO) << "layer name: " << layer_names_[k];
+    //   vector<shared_ptr<Blob<Dtype> > > my_blobs = layers_[k]->blobs();
+    //   if(my_blobs.size()<1){
+    //     continue;
+    //   }
+    //   vector<shared_ptr<Blob<Dtype> > > my_masks = layers_[k]->masks();
+    //   zero_cnt = 0;
+    //   for(int j=0; j!=my_masks[0]->count(); ++j){
+    //     if(my_masks[0]->cpu_data()[j]==0){
+    //       zero_cnt ++;
+    //       if(my_blobs[0]->cpu_data()[j]!=0){
+    //         LOG(INFO) <<"wrong: " << my_blobs[0]->cpu_data()[j];
+    //       }
+    //     }
+    //   }
+    //   LOG(INFO) << "zero_cnt " << zero_cnt;
+    // }
     return loss;
   }
 
