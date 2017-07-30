@@ -25,8 +25,10 @@ void InnerProductLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
   } else {
     if (bias_term_) {
       this->blobs_.resize(2);
+      this->masks_.resize(2);
     } else {
       this->blobs_.resize(1);
+      this->masks_.resize(1);
     }
     // Initialize the weights
     vector<int> weight_shape(2);

@@ -46,6 +46,7 @@ void Net<Dtype>::MakeMask(fstream &file0, fstream &file1, Dtype coeff){
   Dtype var0, var1, loss0, loss1;
   for(int i=0; i != layers_.size(); ++i){
     if (layer_need_backward_[i] && (layers_[i]->blobs()).size()==2) {
+      LOG(INFO) << layer_names_[i];
       boost::shared_ptr<Blob<Dtype> > weight_blob = (layers_[i]->blobs())[0];
       Dtype *weight = weight_blob->mutable_cpu_data();
       boost::shared_ptr<Blob<Dtype> > bias_blob = (layers_[i]->blobs())[1];
@@ -75,14 +76,29 @@ void Net<Dtype>::MakeMask(fstream &file0, fstream &file1, Dtype coeff){
           indexed_x.push_back(std::make_pair(loss1, std::make_pair(1,j)));
         }
       }
+      if(layer_names_[i][0]=='c'){
+	      coeff = 0.0005;
+      }else{
+	      coeff = 0.001;
+      }
+      LOG(INFO) << "coeff: " <<coeff;
       int size_masked = std::floor(coeff*(weight_blob->count()+bias_blob->count()));
         std::partial_sort(
           indexed_x.begin(), indexed_x.begin() + size_masked,
           indexed_x.end(), std::greater<std::pair<Dtype, std::pair<int,int> > >());
       vector<shared_ptr<Blob<Dtype> > > my_masks = layers_[i]->masks();
+      LOG(INFO) << "size masked: " << size_masked;
       for (int k = 0; k < size_masked; ++k) {
         (my_masks[indexed_x[k].second.first])->mutable_cpu_data()[indexed_x[k].second.second] = 0; 
       }
+      int masked_cnt = 0;
+      for(int k=0; k<my_masks.size(); ++k){
+	      for(int j=0; j<my_masks[k]->count(); ++j){
+		      if((my_masks[k]->cpu_data())[j]==0){
+			masked_cnt++;	
+		      }
+		}}
+      LOG(INFO) << "Masked count: " <<masked_cnt;
     }
   }
 }

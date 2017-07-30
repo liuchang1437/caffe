@@ -158,15 +158,15 @@ void BaseConvolutionLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
   } else {
     if (bias_term_) {
       this->blobs_.resize(2);
+      this->masks_.resize(2);
     } else {
       this->blobs_.resize(1);
+      this->masks_.resize(1);
     }
     // Initialize and fill the weights:
     // output channels x input channels per-group x kernel height x kernel width
     this->blobs_[0].reset(new Blob<Dtype>(weight_shape));
-    LOG(INFO) << "here~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~";
     this->masks_[0].reset(new Blob<Dtype>(weight_shape)); 
-    LOG(INFO) << "2~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~";
     caffe_set<Dtype>(this->blobs_[0]->count(), (Dtype)1., 
                     this->masks_[0]->mutable_cpu_data()); 
 
@@ -176,9 +176,7 @@ void BaseConvolutionLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
     // If necessary, initialize and fill the biases.
     if (bias_term_) {
       this->blobs_[1].reset(new Blob<Dtype>(bias_shape));
-      LOG(INFO) << "3~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~";
       this->masks_[1].reset(new Blob<Dtype>(bias_shape));
-      LOG(INFO) << "4~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"; 
       caffe_set<Dtype>(this->blobs_[1]->count(), (Dtype)1., 
         this->masks_[1]->mutable_cpu_data()); 
       shared_ptr<Filler<Dtype> > bias_filler(GetFiller<Dtype>(
