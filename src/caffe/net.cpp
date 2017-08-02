@@ -44,6 +44,8 @@ Net<Dtype>::Net(const string& param_file, Phase phase,
 template <typename Dtype>
 void Net<Dtype>::MakeMask(fstream &file0, fstream &file1, Dtype coeff){
   Dtype var0, var1, loss0, loss1;
+  std::vector<std::pair<Dtype, std::vector<int> > > indexed_x;
+  int cnt_total(0);
   for(int i=0; i != layers_.size(); ++i){
     if (layer_need_backward_[i] && (layers_[i]->blobs()).size()==2) {
       LOG(INFO) << layer_names_[i];
@@ -51,55 +53,54 @@ void Net<Dtype>::MakeMask(fstream &file0, fstream &file1, Dtype coeff){
       Dtype *weight = weight_blob->mutable_cpu_data();
       boost::shared_ptr<Blob<Dtype> > bias_blob = (layers_[i]->blobs())[1];
       Dtype *bias = bias_blob->mutable_cpu_data();
-      std::vector<std::pair<Dtype, std::pair<int, int> > > indexed_x;
       for(int j=0; j != weight_blob->count(); ++j){
+        cnt_total++;
         file0 >> var0;
         file1 >> var1;
         loss0=std::abs(weight[j]-weight[j]*var0);
         loss1=std::abs(weight[j]-weight[j]*var1);
+        std::vector<int> tmp;
+        tmp.push_back(i);
+        tmp.push_back(0);
+        tmp.push_back(j);
         if(loss0<loss1){
-          indexed_x.push_back(std::make_pair(loss0, std::make_pair(0,j)));
+          indexed_x.push_back(std::make_pair(loss0, tmp));
         }
         else{
-          indexed_x.push_back(std::make_pair(loss1, std::make_pair(0,j)));
+          indexed_x.push_back(std::make_pair(loss1, tmp));
         }
       }
       for(int j=0; j != bias_blob->count(); ++j){
+        cnt_total++;
         file0 >> var0;
         file1 >> var1;
         loss0=std::abs(bias[j]-bias[j]*var0);
         loss1=std::abs(bias[j]-bias[j]*var1);
+        std::vector<int> tmp;
+        tmp.push_back(i);
+        tmp.push_back(1);
+        tmp.push_back(j);
         if(loss0<loss1){
-          indexed_x.push_back(std::make_pair(loss0, std::make_pair(1,j)));
+          indexed_x.push_back(std::make_pair(loss0, tmp));
         }
         else{
-          indexed_x.push_back(std::make_pair(loss1, std::make_pair(1,j)));
+          indexed_x.push_back(std::make_pair(loss1, tmp));
         }
       }
-      if(layer_names_[i][0]=='c'){
-	      coeff = 0;
-      }else{
-	      coeff = 0.1;
-      }
-      LOG(INFO) << "coeff: " <<coeff;
-      int size_masked = std::floor(coeff*(weight_blob->count()+bias_blob->count()));
-        std::partial_sort(
-          indexed_x.begin(), indexed_x.begin() + size_masked,
-          indexed_x.end(), std::greater<std::pair<Dtype, std::pair<int,int> > >());
-      vector<shared_ptr<Blob<Dtype> > > my_masks = layers_[i]->masks();
-      LOG(INFO) << "size masked: " << size_masked;
-      for (int k = 0; k < size_masked; ++k) {
-        (my_masks[indexed_x[k].second.first])->mutable_cpu_data()[indexed_x[k].second.second] = 0; 
-      }
-    //   int masked_cnt = 0;
-    //   for(int k=0; k<my_masks.size(); ++k){
-	  //     for(int j=0; j<my_masks[k]->count(); ++j){
-		//       if((my_masks[k]->cpu_data())[j]==0){
-		// 	masked_cnt++;	
-		//       }
-		// }}
-    //   LOG(INFO) << "Masked count: " <<masked_cnt;
     }
+  }
+  LOG(INFO) << "coeff: " << coeff;
+  LOG(INFO) << "total num of weight + bias: "<< cnt_total;
+  int size_masked = std::floor(coeff*cnt_total);
+  std::partial_sort(
+    indexed_x.begin(), indexed_x.begin() + size_masked,
+    indexed_x.end(), std::greater<std::pair<Dtype, std::vector<int> > >());
+  LOG(INFO) << "num masked: " << size_masked;
+  for (int k = 0; k < size_masked; ++k) {
+    int layer_num = (indexed_x[k].second)[0];
+    int w_or_b = (indexed_x[k].second)[1];
+    int idx = (indexed_x[k].second)[2];
+    ((layers_[layer_num]->masks())[w_or_b])->mutable_cpu_data()[idx] = 0;
   }
 }
 // ----------------------------  END ----------------------------------

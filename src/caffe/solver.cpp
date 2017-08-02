@@ -185,7 +185,7 @@ void Solver<Dtype>::Step(int iters) {
   smoothed_loss_ = 0;
   iteration_timer_.Start();
   int mask_freq = 50000;
-  Dtype mask_coeff = 0.001;
+  Dtype mask_coeff = 0.3;
   while (iter_ < stop_iter) {
     // calculate mask every mask_freq times.
     if(!(iter_ % mask_freq)){
