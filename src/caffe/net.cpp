@@ -39,6 +39,61 @@ Net<Dtype>::Net(const string& param_file, Phase phase,
   param.mutable_state()->set_level(level);
   Init(param);
 }
+// ---------------------------- add variation -------------------------
+template <typename Dtype>
+std::vector<Dtype> * Net<Dtype>::add_variation(fstream &file0, fstream &file1){
+  Dtype var0, var1;
+  std::vector<Dtype> *original_weight;
+  for(int i=0; i!=learnable_params_.size();++i){
+    const Dtype* my_blob_data = learnable_params_[i]->cpu_data();
+    for(int j=0; j!=learnable_params_[i]->count();++j){
+      original_weight->push_back(my_blob_data[j]);
+    }
+  }
+  for(int i=0; i != layers_.size(); ++i){
+    if (layer_need_backward_[i] && (layers_[i]->blobs()).size()==2) {
+      boost::shared_ptr<Blob<Dtype> > weight_blob = (layers_[i]->blobs())[0];
+      Dtype *weight = weight_blob->mutable_cpu_data();
+      boost::shared_ptr<Blob<Dtype> > bias_blob = (layers_[i]->blobs())[1];
+      Dtype *bias = bias_blob->mutable_cpu_data();
+      for(int j=0; j != weight_blob->count(); ++j){
+        file0 >> var0;
+        file1 >> var1;
+        Dtype min;
+        if(std::abs(var0)<std::abs(var1)){
+          min = var0;
+        }else{
+          min = var1;
+        }
+        weight[j] *= min ;
+      }
+      for(int j=0; j != bias_blob->count(); ++j){
+        file0 >> var0;
+        file1 >> var1;
+        Dtype min;
+        if(std::abs(var0)<std::abs(var1)){
+          min = var0;
+        }else{
+          min = var1;
+        }
+        bias[j] *= min ;
+      }
+    }
+  }
+  return original_weight;
+  
+}
+
+// ---------------------------- recover from variation -----------------
+template <typename Dtype>
+void Net<Dtype>::recover_from_variation(std::vector<Dtype>  *before_variation){
+  int cnt=0;
+  for(int i=0; i<learnable_params_.size();++i){
+    for(int j=0; j<learnable_params_[i]->count(); ++j){
+      learnable_params_[i]->mutable_cpu_data()[j] = (*before_variation)[cnt++];
+    }
+  }
+}
 
 // ----------------------------  MASK ----------------------------------
 template <typename Dtype>

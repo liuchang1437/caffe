@@ -101,6 +101,8 @@ class Solver {
   string SnapshotToBinaryProto();
   string SnapshotToHDF5();
   // The test routine
+  Dtype TestAllReturn();
+  Dtype TestReturn(const int test_net_id = 0);
   void TestAll();
   void Test(const int test_net_id = 0);
   virtual void SnapshotSolverState(const string& model_filename) = 0;
