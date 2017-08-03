@@ -185,7 +185,7 @@ void Solver<Dtype>::Step(int iters) {
   smoothed_loss_ = 0;
   iteration_timer_.Start();
   int mask_freq = 1000;
-  Dtype mask_coeff = 0.001;
+  Dtype mask_coeff = 0.01;
   while (iter_ < stop_iter) {
     // calculate mask every mask_freq times.
     if(!(iter_ % mask_freq) && mask_coeff!=0){
@@ -203,9 +203,7 @@ void Solver<Dtype>::Step(int iters) {
     if (param_.test_interval() && iter_ % param_.test_interval() == 0
         && (iter_ > 0 || param_.test_initialization())) {
       if (Caffe::root_solver()) {
-        LOG(INFO) << "Before test all";
         TestAll();
-        LOG(INFO) << "After test all";
       }
       if (requested_early_exit_) {
         // Break out of the while loop because stop was requested while testing.
@@ -257,9 +255,7 @@ void Solver<Dtype>::Step(int iters) {
     for (int i = 0; i < callbacks_.size(); ++i) {
       callbacks_[i]->on_gradients_ready();
     }
-    LOG(INFO) << "Before update";
     ApplyUpdate();
-    LOG(INFO )<< "After update";
 
     // Increment the internal iter_ counter -- its value should always indicate
     // the number of times the weights have been updated.
@@ -286,14 +282,16 @@ void Solver<Dtype>::Step(int iters) {
       fstream file1("vgg_fault16/1.txt",ios::in);
       LOG(INFO) << "------------------------------------------";
       LOG(INFO) << "add variation";
-      std::vector<Dtype> *original_weight = net_->add_variation(file0, file1);
+      std::vector<Dtype> original_weight;
+      net_->add_variation(file0, file1, original_weight);
       file0.close();
       file1.close();
       Dtype my_accuracy = TestAllReturn();
       LOG(INFO) << "------------------------------------------";
       LOG(INFO) << "accuracy: "<<my_accuracy;
-      if(my_accuracy>0.5||iter_==30000){
-        break;
+      if(my_accuracy>0.5||iter_>=30000){
+        mask_coeff = 0;
+        continue;
       }
       LOG(INFO) << "------------------------------------------";
       LOG(INFO) << "recover from variation";

@@ -41,14 +41,13 @@ Net<Dtype>::Net(const string& param_file, Phase phase,
 }
 // ---------------------------- add variation -------------------------
 template <typename Dtype>
-std::vector<Dtype> * Net<Dtype>::add_variation(fstream &file0, fstream &file1){
+void Net<Dtype>::add_variation(fstream &file0, fstream &file1, std::vector<Dtype> &original_weight){
   Dtype var0, var1;
-  std::vector<Dtype> *original_weight;
   for(int i=0; i!=learnable_params_.size();++i){
     const Dtype* my_blob_data = learnable_params_[i]->cpu_data();
     for(int j=0; j!=learnable_params_[i]->count();++j){
-      original_weight->push_back(my_blob_data[j]);
-    }
+      original_weight.push_back(my_blob_data[j]);
+    }    
   }
   for(int i=0; i != layers_.size(); ++i){
     if (layer_need_backward_[i] && (layers_[i]->blobs()).size()==2) {
@@ -79,18 +78,16 @@ std::vector<Dtype> * Net<Dtype>::add_variation(fstream &file0, fstream &file1){
         bias[j] *= min ;
       }
     }
-  }
-  return original_weight;
-  
+  }  
 }
 
 // ---------------------------- recover from variation -----------------
 template <typename Dtype>
-void Net<Dtype>::recover_from_variation(std::vector<Dtype>  *before_variation){
+void Net<Dtype>::recover_from_variation(std::vector<Dtype>  &before_variation){
   int cnt=0;
   for(int i=0; i<learnable_params_.size();++i){
     for(int j=0; j<learnable_params_[i]->count(); ++j){
-      learnable_params_[i]->mutable_cpu_data()[j] = (*before_variation)[cnt++];
+      learnable_params_[i]->mutable_cpu_data()[j] = before_variation[cnt++];
     }
   }
 }

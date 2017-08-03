@@ -33,8 +33,8 @@ class Net {
 
   // Make mask from two variation files.
   void MakeMask(fstream &file0, fstream &file1, Dtype coeff);
-  void recover_from_variation(std::vector<Dtype>  *before_variation);
-  std::vector<Dtype> * add_variation(fstream &file0, fstream &file1);
+  void recover_from_variation(std::vector<Dtype>  &before_variation);
+  void add_variation(fstream &file0, fstream &file1,  std::vector<Dtype> &original_weight);
 
   /**
    * @brief Run Forward and return the result.
