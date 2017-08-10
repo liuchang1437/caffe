@@ -184,13 +184,15 @@ void Solver<Dtype>::Step(int iters) {
   losses_.clear();
   smoothed_loss_ = 0;
   iteration_timer_.Start();
-  int mask_freq = 1000;
-  Dtype mask_coeff = 0.01;
+  int mask_freq = 20000;
+  int on_device_freq= 20000;
+  double accuracy_base=0.5;
+  Dtype mask_coeff = 0.3;
   while (iter_ < stop_iter) {
     // calculate mask every mask_freq times.
     if(!(iter_ % mask_freq) && mask_coeff!=0){
-      fstream file0("vgg_fault16/0.txt",ios::in);
-      fstream file1("vgg_fault16/1.txt",ios::in);
+      fstream file0("FCL_fault5/0.txt",ios::in);
+      fstream file1("FCL_fault5/1.txt",ios::in);
       LOG(INFO) << "----------------- make mask! ---------------------";
       net_->MakeMask(file0, file1, mask_coeff);
       file0.close();
@@ -277,9 +279,9 @@ void Solver<Dtype>::Step(int iters) {
     }
 
     // Test and decide whether turn to on-device train.
-    if(!(iter_ % mask_freq)){
-      fstream file0("vgg_fault16/0.txt",ios::in);
-      fstream file1("vgg_fault16/1.txt",ios::in);
+    if(!(iter_ % mask_freq)&&(mask_coeff!=0)){
+      fstream file0("FCL_fault5/0.txt",ios::in);
+      fstream file1("FCL_fault5/1.txt",ios::in);
       LOG(INFO) << "------------------------------------------";
       LOG(INFO) << "add variation";
       std::vector<Dtype> original_weight;
@@ -289,8 +291,9 @@ void Solver<Dtype>::Step(int iters) {
       Dtype my_accuracy = TestAllReturn();
       LOG(INFO) << "------------------------------------------";
       LOG(INFO) << "accuracy: "<<my_accuracy;
-      if(my_accuracy>0.5||iter_>=30000){
+      if(my_accuracy>accuracy_base||iter_>=on_device_freq){
         mask_coeff = 0;
+        this->param_.set_base_lr(0.486);
         continue;
       }
       LOG(INFO) << "------------------------------------------";

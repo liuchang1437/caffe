@@ -64,6 +64,7 @@ void Net<Dtype>::add_variation(fstream &file0, fstream &file1, std::vector<Dtype
         }else{
           min = var1;
         }
+        //LOG(INFO) << weight[j]  << " * " << min << " = " << weight[j] * min;
         weight[j] *= min ;
       }
       for(int j=0; j != bias_blob->count(); ++j){
