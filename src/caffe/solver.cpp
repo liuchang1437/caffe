@@ -194,8 +194,8 @@ void Solver<Dtype>::Step(int iters) {
   while (iter_ < stop_iter) {
     // calculate mask every mask_freq times.
     if(!(iter_ % mask_freq) && mask_coeff!=0){
-      fstream file0("FCL_fault5/0.txt",ios::in);
-      fstream file1("FCL_fault5/1.txt",ios::in);
+      fstream file0("vgg_fault20/0.txt",ios::in);
+      fstream file1("vgg_fault20/1.txt",ios::in);
       LOG(INFO) << "----------------- make mask! ---------------------";
       net_->MakeMask(file0, file1, mask_coeff);
       file0.close();
@@ -287,8 +287,8 @@ void Solver<Dtype>::Step(int iters) {
 
     // Test and decide whether turn to on-device train.
     if(!(iter_ % mask_freq)&&(mask_coeff!=0)){
-      fstream file0("FCL_fault5/0.txt",ios::in);
-      fstream file1("FCL_fault5/1.txt",ios::in);
+      fstream file0("vgg_fault20/0.txt",ios::in);
+      fstream file1("vgg_fault20/1.txt",ios::in);
       LOG(INFO) << "------------------------------------------";
       LOG(INFO) << "add variation";
       std::vector<Dtype> original_weight;
