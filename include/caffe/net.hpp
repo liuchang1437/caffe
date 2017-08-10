@@ -87,9 +87,23 @@ class Net {
    */
   void Reshape();
 
-  Dtype ForwardBackward() {
+  Dtype ForwardBackward(bool if_on_device) {
     Dtype loss;
+    Dtype original_loss;
+    if(if_on_device){
+      fstream file0("FCL_fault5/0.txt",ios::in);
+      fstream file1("FCL_fault5/1.txt",ios::in);
+      std::vector<Dtype> original_weight;
+      add_variation(file0, file1, original_weight);
+      Forward(&loss);
+      vector<Blob<Dtype>*>& last_top = top_vecs_[top_vecs_.size()-1];
+      original_loss = last_top[0]->cpu_data()[0];
+      LOG(INFO) << "I retrive the loss of the last layer: " << original_loss;
+      recover_from_variation(original_weight);
+    }
     Forward(&loss);
+    LOG(INFO) << "loss after recover: "<<top_vecs_[top_vecs_.size()-1][0]->cpu_data()[0];
+    top_vecs_[top_vecs_.size()-1][0]->mutable_cpu_data()[0] = original_loss;
     Backward();
     // int zero_cnt;
     // LOG(INFO) << "===========================" ;
