@@ -189,7 +189,7 @@ void Solver<Dtype>::Step(int iters) {
   double accuracy_base=0.5;
   Dtype mask_coeff = 0.3;
   // control whether to test on device.
-  int on_device_test_freq = 1;
+  int on_device_test_freq = 100000;
   bool if_add_var_forward = false;
   while (iter_ < stop_iter) {
     // calculate mask every mask_freq times.
@@ -313,6 +313,8 @@ void Solver<Dtype>::Step(int iters) {
       LOG(INFO) << "recover from variation";
       net_->recover_from_variation(original_weight);
     }
+    // Diff*variation
+    
   }
 }
 
