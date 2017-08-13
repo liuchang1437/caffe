@@ -185,7 +185,7 @@ void Solver<Dtype>::Step(int iters) {
   smoothed_loss_ = 0;
   iteration_timer_.Start();
   int mask_freq = 20000;
-    //int on_device_freq= 20000;
+  int on_device_freq= 20000;
   double accuracy_base=0.5;
   Dtype mask_coeff = 0.3;
   // control whether to test on device.
@@ -223,7 +223,7 @@ void Solver<Dtype>::Step(int iters) {
     net_->set_debug_info(display && param_.debug_info());
     if_add_var_forward = false;
     if(!(iter_ % on_device_test_freq)){
-      if_add_var_forward = true;
+      if_add_var_forward = false;
     }
     // accumulate the loss and gradient
     Dtype loss = 0;
@@ -264,6 +264,11 @@ void Solver<Dtype>::Step(int iters) {
     for (int i = 0; i < callbacks_.size(); ++i) {
       callbacks_[i]->on_gradients_ready();
     }
+    fstream file0("vgg_fault20/2.txt",ios::in);
+    fstream file1("vgg_fault20/3.txt",ios::in);
+    net_->add_diff_variation(file0, file1);
+    file0.close();
+    file1.close();
     ApplyUpdate();
 
     // Increment the internal iter_ counter -- its value should always indicate
@@ -298,12 +303,12 @@ void Solver<Dtype>::Step(int iters) {
       Dtype my_accuracy = TestAllReturn();
       LOG(INFO) << "------------------------------------------";
       LOG(INFO) << "accuracy: "<<my_accuracy;
-      //if(my_accuracy>accuracy_base||iter_>=on_device_freq){
+      if(my_accuracy>accuracy_base||iter_>=on_device_freq){
         // on-device
-        // mask_coeff = 0;
-        // this->param_.set_base_lr(0.486);
-        //continue;
-      //}
+        mask_coeff = 0;
+        this->param_.set_base_lr(0.486);
+        continue;
+      }
       LOG(INFO) << "------------------------------------------";
       LOG(INFO) << "recover from variation";
       net_->recover_from_variation(original_weight);

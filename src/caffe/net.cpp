@@ -81,6 +81,26 @@ void Net<Dtype>::add_variation(fstream &file0, fstream &file1, std::vector<Dtype
     }
   }  
 }
+// ---------------------------- add diff variation -------------------------
+template <typename Dtype>
+void Net<Dtype>::add_variation(fstream &file0, fstream &file1){
+  Dtype var0, var1;
+  for(int i=0; i != learnable_params_.size(); ++i){
+    Blob<Dtype> *diff_blob = learnable_params_[i];
+    for(int j=0; j != diff_blob->count(); ++j){
+      file0 >> var0;
+      file1 >> var1;
+      Dtype min;
+      if(std::abs(var0)<std::abs(var1)){
+        min = var0;
+      }else{
+        min = var1;
+      }
+      //LOG(INFO) << weight[j]  << " * " << min << " = " << weight[j] * min;
+      diff_blob->mutable_cpu_diff()[j] *= min ;
+    }
+  }  
+}
 
 // ---------------------------- recover from variation -----------------
 template <typename Dtype>
