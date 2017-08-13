@@ -184,12 +184,11 @@ void Solver<Dtype>::Step(int iters) {
   losses_.clear();
   smoothed_loss_ = 0;
   iteration_timer_.Start();
-  int mask_freq = 20000;
+  int mask_freq = 100000;
     //int on_device_freq= 20000;
-  double accuracy_base=0.5;
   Dtype mask_coeff = 0.3;
   // control whether to test on device.
-  int on_device_test_freq = 1;
+  int on_device_test_freq = 100000;
   bool if_add_var_forward = false;
   while (iter_ < stop_iter) {
     // calculate mask every mask_freq times.
@@ -223,7 +222,7 @@ void Solver<Dtype>::Step(int iters) {
     net_->set_debug_info(display && param_.debug_info());
     if_add_var_forward = false;
     if(!(iter_ % on_device_test_freq)){
-      if_add_var_forward = true;
+      if_add_var_forward = false;
     }
     // accumulate the loss and gradient
     Dtype loss = 0;
@@ -308,6 +307,8 @@ void Solver<Dtype>::Step(int iters) {
       LOG(INFO) << "recover from variation";
       net_->recover_from_variation(original_weight);
     }
+    // Diff*variation
+    
   }
 }
 
