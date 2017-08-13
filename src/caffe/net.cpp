@@ -83,7 +83,7 @@ void Net<Dtype>::add_variation(fstream &file0, fstream &file1, std::vector<Dtype
 }
 // ---------------------------- add diff variation -------------------------
 template <typename Dtype>
-void Net<Dtype>::add_variation(fstream &file0, fstream &file1){
+void Net<Dtype>::add_diff_variation(fstream &file0, fstream &file1){
   Dtype var0, var1;
   for(int i=0; i != learnable_params_.size(); ++i){
     Blob<Dtype> *diff_blob = learnable_params_[i];
