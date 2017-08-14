@@ -35,8 +35,8 @@ class Net {
   void MakeMask(fstream &file0, fstream &file1, Dtype coeff);
   void recover_from_variation(std::vector<Dtype>  &before_variation);
   void add_variation(fstream &file0, fstream &file1, std::vector<Dtype> &original_weight);
-  void add_diff_variation(fstream &file0, fstream &file1);
-
+  void add_diff_variation(vector<Dtype> &diff_var);
+  void read_diff_var(fstream &file0, fstream &file1, vector<Dtype> &diff_var)
   /**
    * @brief Run Forward and return the result.
    *

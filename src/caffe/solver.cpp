@@ -191,6 +191,13 @@ void Solver<Dtype>::Step(int iters) {
   // control whether to test on device.
   int on_device_test_freq = 100000;
   bool if_add_var_forward = false;
+  fstream diff_var_file0("vgg_fault20/2.txt",ios::in);
+  fstream diff_var_file1("vgg_fault20/3.txt",ios::in);
+
+  vector<Dtype> diff_var;
+  net_->read_diff_var(diff_var_file0, diff_var_file1, diff_var);
+  diff_var_file0.close();
+  diff_var_file1.close();
   while (iter_ < stop_iter) {
     // calculate mask every mask_freq times.
     if(!(iter_ % mask_freq) && mask_coeff!=0){
@@ -264,11 +271,8 @@ void Solver<Dtype>::Step(int iters) {
     for (int i = 0; i < callbacks_.size(); ++i) {
       callbacks_[i]->on_gradients_ready();
     }
-    fstream file0("vgg_fault20/2.txt",ios::in);
-    fstream file1("vgg_fault20/3.txt",ios::in);
-    net_->add_diff_variation(file0, file1);
-    file0.close();
-    file1.close();
+     
+    net_->add_diff_variation(diff_var);
     ApplyUpdate();
 
     // Increment the internal iter_ counter -- its value should always indicate
